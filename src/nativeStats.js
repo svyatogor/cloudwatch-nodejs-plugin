@@ -3,7 +3,7 @@
 // all require statements, but we need to require this at runtime.
 // To work around this, webpack aliases the real `require` to
 // `__not_webpack_require__`
-var nativeStats = __non_webpack_require__('./heroku-nodejs-plugin.node');
+var nativeStats = __non_webpack_require__('./cloudwatch-nodejs-plugin.node');
 exports.sense = nativeStats.sense;
 exports.start = nativeStats.start;
 exports.stop = nativeStats.stop;

@@ -11,8 +11,8 @@ module.exports = {
     target: 'node',
 
     output: {
-        // output to the /heroku-nodejs-plugin instead of /dir
-        path: path.resolve(__dirname, "heroku-nodejs-plugin"),
+        // output to the /"cloudwatch-nodejs-plugin instead of /dir
+        path: path.resolve(__dirname, "cloudwatch-nodejs-plugin"),
 
         // Make sure the output file is named `index.js`
         filename: 'index.js',

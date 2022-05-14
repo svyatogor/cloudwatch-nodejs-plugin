@@ -1,7 +1,7 @@
 node_modules
 .DS_Store
 build
-heroku-nodejs-plugin
+cloudwatch-nodejs-plugin
 .vscode
 *.tar.gz
 *.sha512

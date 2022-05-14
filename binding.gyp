@@ -1,7 +1,7 @@
 {
 	"targets": [
 		{
-			"target_name": "heroku-nodejs-plugin",
+			"target_name": "cloudwatch-nodejs-plugin",
 			"sources": [
 				"src/nativeStats.cc"
 			],
@@ -12,15 +12,15 @@
 		{
 			"target_name": "action_after_build",
 			"type": "none",
-			"dependencies": ["heroku-nodejs-plugin"],
+			"dependencies": ["cloudwatch-nodejs-plugin"],
 			"copies": [
 				{
 					"files": [
 						"./src/README.md",
-						"./build/Release/heroku-nodejs-plugin.node",
+						"./build/Release/cloudwatch-nodejs-plugin.node",
 						"./package.json"
 					],
-					"destination": "./heroku-nodejs-plugin/"
+					"destination": "./cloudwatch-nodejs-plugin/"
 				}
 			]
 		}

@@ -1,0 +1,30 @@
+on:
+  release:
+    types: [created]
+
+jobs:
+  releases-matrix:
+    name: Release Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # os:
+        #   - ubuntu-latest
+        #   - macos-latest
+        arch:
+        - arm64
+        - x64
+        node:
+        - 14
+        - 16
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        architecture: ${{ matrix.arch }}
+    - run: npm run build
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.node }}-${{ matrix.arch }}
+        path: ./cloudwatch-nodejs-plugin

@@ -1,22 +1,20 @@
 const util = require('util');
-const log = util.debuglog('heroku');
+const log = util.debuglog('monitor');
 
 // if the node version does not match the major version, bail
 const match = process.version.match(/^v([0-9]+)/);
 const isExpectedNodeVersion = match && match[1] === NODE_MAJOR_VERSION;
 
-// if we are not using node installed by the Heroku buildpack, bail
-const isExpectedNodePath = process.execPath === "/app/.heroku/node/bin/node";
-
-if (isExpectedNodeVersion && isExpectedNodePath) {
+if (isExpectedNodeVersion && process.env.AWS_METRICS_NAMESPACE) {
+  log('[monitor-nodejs-plugin] starting');
   const start = require('./monitor.js');
   start();
 } else {
-  if (!isExpectedNodePath) {
-    log("[heroku-nodejs-plugin] expected different Node path. Found:", process.execPath);
+  if (!process.env.AWS_METRICS_NAMESPACE) {
+    log('[monitor-nodejs-plugin] AWS_METRICS_NAMESPACE not set');
   }
   if (!isExpectedNodeVersion) {
-    log("[heroku-nodejs-plugin] expected different Node version. Expected:",
+    log("[monitor-nodejs-plugin] expected different Node version. Expected:",
     NODE_MAJOR_VERSION,
     "Found:",
     match && match[1]);

@@ -1,9 +1,7 @@
-# heroku-nodejs-plugin
+# cloudwatch-nodejs-plugin
 
-[![CircleCI](https://circleci.com/gh/heroku/heroku-nodejs-plugin/tree/main.svg?style=svg)](https://circleci.com/gh/heroku/heroku-nodejs-plugin)
-
-A metrics plugin to add [Heroku runtime metrics](https://devcenter.heroku.com/articles/language-runtime-metrics)
-to an existing Node.js application. The plugin is added to a [vendor directory](https://github.com/heroku/heroku-buildpack-nodejs/tree/main/plugin) in https://github.com/heroku/heroku-buildpack-nodejs.
+This plugin is a modification of [heroku nodejs plugin](https://github.com/heroku/heroku-nodejs-plugin).
+Its purpose is to send NodeJS monitoring data such as event loop delays, event loop usage, GC metrics to AWS CloudWatch.
 
 # How does it work?
 
@@ -11,47 +9,36 @@ You can see most of the implementation details in `src/nativeStats.cc`. The plug
 around GC invocations, and during the `prepare` and `check` phases of the event loop, tracks the
 amount of time spent in each.
 
-This data is exposed to a JS loop that periodically sends data to Heroku's metrics service.
+This data is exposed to a JS loop that periodically sends data to AWS CloudWatch.
 
 ## Debugging
 
-If the plugin is not working for you once you have enabled the feature on Heroku, the first thing
-you should do is set the ENV var `NODE_DEBUG` to `heroku`. By default all logging from the plugin
-is silenced.
+If the plugin is not working for you once, the first thing
+you should do is set the ENV var `NODE_DEBUG` to `monitor`. By default all logging from the plugin
+is silenced. If you want to see the actual values sent to CloudWatch, set `NODE_DEBUG` to `monitor-debug`
 
 ```
-$ heroku config:set NODE_DEBUG=heroku -a $APP_NAME
+$ NODE_DEBUG=monitor,monitor-debug node -r cloudwatch-nodejs-plugin myapp.js
 ```
 
 ## Metrics collected
 
 ```json
 {
-  "counters": {
-    "node.gc.collections": 748,
-    "node.gc.pause.ns": 92179835,
-    "node.gc.old.collections": 2,
-    "node.gc.old.pause.ns": 671054,
-    "node.gc.young.collections": 746,
-    "node.gc.young.pause.ns": 91508781
-  },
-  "gauges": {
-    "node.eventloop.usage.percent": 0.12,
-    "node.eventloop.delay.ms.median": 5,
-    "node.eventloop.delay.ms.p95": 100,
-    "node.eventloop.delay.ms.p99": 100,
-    "node.eventloop.delay.ms.max": 100
-  }
+  GcCollections: 748,
+  GcPause: 92179.835,
+  GcOldCollections: 2,
+  GcOldPause: 671.054,
+  GcYoungCollections: 746,
+  GcYoungPause: 91508781,
+  EventLoopUsage: 12%,
+  EventLoopDelay: [array of delays]
 }
 ```
 
 ## Development
 
-You can collect and print out metrics locally by running the included Go server:
-
-```
-$ PORT=5001 go run fake_metrics_server.go
-```
+You can collect and print out metrics locally by running in debug mode.
 
 You can run develop this locally by running build:
 
@@ -62,11 +49,10 @@ $ npm run build
 and including the built module in another local Node app like:
 
 ```
-$ NODE_OPTIONS="--require {{ working directory }}/heroku-nodejs-plugin/heroku-nodejs-plugin" HEROKU_METRICS_URL="http://localhost:5001" node src/index.js
+$ NODE_OPTIONS="--require {{ working directory }}/cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin" AWS_METRICS_NAMESPACE="MyApp" node src/index.js
 ```
 
 Example app with periodic event loop and gc activity: https://github.com/heroku/node-metrics-single-process
 
-## Publishing new versions
-
-New versions can be published to Github releases by merging all changes to `main` and running `scripts/publish.sh`
+## Usage
+Require the plugin directly or via `NODE_OPTIONS` variable. `AWS_METRICS_NAMESPACE` should be set. You can optionally set `METRICS_INTERVAL_OVERRIDE` to control the frequency of snapshots.

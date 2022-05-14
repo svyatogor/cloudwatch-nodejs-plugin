@@ -5,8 +5,8 @@ set -o pipefail   # don't ignore exit codes when piping output
 
 echo "Building plugin"
 
-# delete /build and /heroku-nodejs-plugin if it exists
-rm -rf build heroku-nodejs-plugin
+# delete /build and /cloudwatch-nodejs-plugin if it exists
+rm -rf build cloudwatch-nodejs-plugin
 
 # run the build using node-gyp
 npx node-gyp configure build
