@@ -23,6 +23,13 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
         architecture: ${{ matrix.arch }}
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: npm-${{ hashFiles('package-lock.json') }}
+        restore-keys: npm-
+    - run: npm ci
     - run: npm run build
     - uses: actions/upload-artifact@v3
       with:
