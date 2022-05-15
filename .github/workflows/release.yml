@@ -27,17 +27,21 @@ jobs:
 
         # Set an output parameter `uname` for use in subsequent steps
         install: |
-          apt-get update
-          apt-get install -y curl sudo build-essential
           curl -fsSL https://deb.nodesource.com/setup_${{ matrix.node }}.x | sudo -E bash -
-          apt-get install -y nodejs
+          apt-get install -y nodejs build-essential
         run: |
           cd /app
           npm ci
           npm run build
           rm -rf node_modules
           mv ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.node ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.linux-arm64-node${{ matrix.node }}
-    - uses: actions/upload-artifact@v3
+    - run: zip --junk-paths artifact.zip cloudwatch-nodejs-plugin/*
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: ${{ matrix.node }}-${{ matrix.arch }}
-        path: ./cloudwatch-nodejs-plugin
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifact.zip
+        asset_name: cloudwatch-nodejs-plugin-node${{ matrix.node }}.zip
+        asset_content_type: application/zip
