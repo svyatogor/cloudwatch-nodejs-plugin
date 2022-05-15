@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "description": "A module that forwards stats from a Node process into the CloudWatch metrics system",
   "scripts": {
-    "postinstall": "./scripts/build.sh",
     "build": "./scripts/build.sh",
     "test": "exit 0"
   },

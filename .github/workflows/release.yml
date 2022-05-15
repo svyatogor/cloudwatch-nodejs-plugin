@@ -8,12 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # os:
-        #   - ubuntu-latest
-        #   - macos-latest
-        arch:
-        - arm64
-        - x64
         node:
         - 14
         - 16
@@ -22,15 +16,29 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
-        architecture: ${{ matrix.arch }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
+    - run: npm ci && npm run build && rm -rf node_modules
+    - mv ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.node ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.linux-x64-node${{ matrix.node }}
+    - uses: uraimo/run-on-arch-action@v2
+      name: Build on ARM64
+      id: runcmd
       with:
-        path: ~/.npm
-        key: npm-${{ hashFiles('package-lock.json') }}
-        restore-keys: npm-
-    - run: npm ci
-    - run: npm run build
+        arch: aarch64
+        distro: ubuntu22.04
+        dockerRunArgs: |
+          --volume "${PWD}:/app"
+
+        # Set an output parameter `uname` for use in subsequent steps
+        install: |
+          apt-get update
+          apt-get install curl sudo build-essential
+          curl -fsSL https://deb.nodesource.com/setup_${{ matrix.node }}.x | sudo -E bash -
+          apt-get install -y nodejs
+        run: |
+          cd /app
+          npm ci
+          npm run build
+          rm -rf node_modules
+          mv ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.node ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.linux-arm64-node${{ matrix.node }}
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.node }}-${{ matrix.arch }}
