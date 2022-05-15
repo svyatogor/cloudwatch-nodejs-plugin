@@ -8,16 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node:
-        - 14
-        - 16
+        node: [14, 16]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
     - run: npm ci && npm run build && rm -rf node_modules
-    - mv ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.node ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.linux-x64-node${{ matrix.node }}
+    - run: mv ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.node ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.linux-x64-node${{ matrix.node }}
     - uses: uraimo/run-on-arch-action@v2
       name: Build on ARM64
       id: runcmd
