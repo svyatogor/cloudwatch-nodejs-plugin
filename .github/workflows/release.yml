@@ -18,7 +18,6 @@ jobs:
     - run: mv ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.node ./cloudwatch-nodejs-plugin/cloudwatch-nodejs-plugin.linux-x64-node${{ matrix.node }}
     - uses: uraimo/run-on-arch-action@v2
       name: Build on ARM64
-      id: runcmd
       with:
         arch: aarch64
         distro: ubuntu22.04
@@ -27,7 +26,8 @@ jobs:
 
         # Set an output parameter `uname` for use in subsequent steps
         install: |
-          curl -fsSL https://deb.nodesource.com/setup_${{ matrix.node }}.x | sudo -E bash -
+          apt-get update && apt-get install -y curl
+          curl -fsSL https://deb.nodesource.com/setup_${{ matrix.node }}.x | -E bash -
           apt-get install -y nodejs build-essential
         run: |
           cd /app
